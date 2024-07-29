@@ -1,0 +1,17 @@
+Farqlari
+
+    Xatolik boshqaruvi:
+        ctx.ShouldBindJSON: Xatolikni qo'lda boshqarishingiz kerak.
+        ctx.Bind va ctx.BindJSON: Xatolik yuz berganda avtomatik ravishda HTTP 400 javob yuboradi.
+
+    Ma'lumot turi:
+        ctx.ShouldBindJSON va ctx.BindJSON: Faqat JSON ma'lumotlarni binding qiladi.
+        ctx.Bind: JSON, XML, form data kabi turli ma'lumotlarni avtomatik tanlaydi.
+
+Qachon foydalanish kerak?
+
+    Agar JSON ma'lumotlarni binding qilish va xatoliklarni qo'lda boshqarish kerak bo'lsa: ctx.ShouldBindJSON
+    Turli ma'lumot turlarini binding qilish kerak bo'lsa: ctx.Bind
+    Faqat JSON ma'lumotlarni binding qilish va xatoliklarni avtomatik boshqarish kerak bo'lsa: ctx.BindJSON
+
+Bu metodlar yordamida HTTP so'rovlaridan ma'lumotlarni olish va ularni strukturalarga binding qilish imkoniyati mavjud. Sizning holatingizga qarab kerakli metodni tanlashingiz mumkin.
