@@ -12,12 +12,16 @@ import (
 func (h *handler) CreateContent(ctx *gin.Context) {
 	var reqBody content_service.CreateContentReq
 
-	if err := ctx.Bind(&reqBody); err != nil {
+	if err := ctx.BindJSON(&reqBody); err != nil {
+		log.Println("error binding request body:", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
 	resp, err := h.conn.CreateContent(ctx, &reqBody)
 	if err != nil {
+		log.Println("error creating content:", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create content"})
 		return
 	}
 
@@ -30,6 +34,7 @@ func (h *handler) GetContents(ctx *gin.Context) {
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
+		log.Println("Invalid limit parameter:", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit parameter"})
 		return
 	}
@@ -37,6 +42,7 @@ func (h *handler) GetContents(ctx *gin.Context) {
 
 	pageInt, err := strconv.Atoi(page)
 	if err != nil {
+		log.Println("Invalid page parameter:", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page parameter"})
 		return
 	}
@@ -44,6 +50,7 @@ func (h *handler) GetContents(ctx *gin.Context) {
 
 	contents, err := h.conn.GetContentList(ctx, &reqBody)
 	if err != nil {
+		log.Println("Failed to fetch content list:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch content list"})
 		return
 	}
@@ -51,9 +58,9 @@ func (h *handler) GetContents(ctx *gin.Context) {
 }
 
 func (h *handler) GetContentById(ctx *gin.Context) {
-
 	id := ctx.Param("id")
 	if id == "" {
+		log.Println("ID is required")
 		ctx.JSON(400, gin.H{"error": "ID is required"})
 		return
 	}
@@ -64,8 +71,8 @@ func (h *handler) GetContentById(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"error": "Failed to fetch content"})
 		return
 	}
-	ctx.JSON(200, content)
 
+	ctx.JSON(200, content)
 }
 
 func (h *handler) UpdateContent(ctx *gin.Context) {
@@ -78,6 +85,7 @@ func (h *handler) UpdateContent(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
+		log.Println("Invalid request body:", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
@@ -99,12 +107,15 @@ func (h *handler) UpdateContent(ctx *gin.Context) {
 func (h *handler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
+		log.Println("ID is required")
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
 		return
 	}
+
 	req := &content_service.DeleteContentReq{
 		Id: id,
 	}
+
 	_, err := h.conn.DeleteContent(ctx, req)
 	if err != nil {
 		log.Println("Error deleting content:", err)

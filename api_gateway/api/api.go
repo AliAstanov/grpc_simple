@@ -19,9 +19,8 @@ func Api() {
 	api.POST("/crt", h.CreateContent)
 	api.GET("/contents", h.GetContents)
 	api.GET("/content/:id", h.GetContentById)
-	api.PUT("/update/:id",h.UpdateContent)
-	api.DELETE("/delete/:id",h.Delete)
-
+	api.PUT("/update/:id", h.UpdateContent)
+	api.DELETE("/delete/:id", h.Delete)
 
 	router.Run(":8080")
 

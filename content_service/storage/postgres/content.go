@@ -25,9 +25,10 @@ func NewContentRepo(conn *pgx.Conn) ContentRepoI {
 
 func (c *ContentRepo) Create(ctx context.Context, contentreq *content_service.CreateContentReq) (*content_service.Content, error) {
 	var err error
-	var content = &content_service.Content{}
-	content.Id = uuid.New().String()
-	content.CreatedAt = time.Now().Format(time.RFC3339)
+	content := &content_service.Content{
+		Id:        uuid.New().String(),
+		CreatedAt: time.Now().Format(time.RFC3339),
+	}
 
 	err = halpers.DataParser1(contentreq, content)
 	if err != nil {
@@ -54,7 +55,7 @@ func (c *ContentRepo) Create(ctx context.Context, contentreq *content_service.Cr
 		return nil, err
 	}
 
-	log.Println("content:", content)
+	log.Println("content created:", content)
 	return content, nil
 }
 
@@ -81,6 +82,8 @@ func (c *ContentRepo) GetList(ctx context.Context, req *content_service.GetListR
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		var content content_service.Content
 		var createdAt time.Time
@@ -100,7 +103,6 @@ func (c *ContentRepo) GetList(ctx context.Context, req *content_service.GetListR
 		log.Fatal("error on scanning content count.")
 		return nil, err
 	}
-	defer rows.Close()
 
 	return &content_service.GetListResp{
 		Contents: contents.Contents,
@@ -108,7 +110,6 @@ func (c *ContentRepo) GetList(ctx context.Context, req *content_service.GetListR
 	}, nil
 }
 func (c *ContentRepo) GetContentById(ctx context.Context, id string) (*content_service.Content, error) {
-
 	var content content_service.Content
 
 	query := `
@@ -152,7 +153,7 @@ func (c *ContentRepo) Update(ctx context.Context, content *content_service.Updat
 		content.Id,
 	)
 	if err != nil {
-		log.Println("No rows found for the given ID", err)
+		log.Println("Error during update operation:", err)
 		return nil, err
 	}
 
@@ -161,7 +162,8 @@ func (c *ContentRepo) Update(ctx context.Context, content *content_service.Updat
 }
 
 func (c *ContentRepo) Delete(ctx context.Context, req *content_service.DeleteContentReq) (*empty.Empty, error) {
-	log.Println("sss")
+	log.Println("Starting delete operation")
+
 	query := `
 		DELETE FROM
 			content
@@ -169,11 +171,11 @@ func (c *ContentRepo) Delete(ctx context.Context, req *content_service.DeleteCon
 			id = $1
 	`
 	_, err := c.conn.Exec(ctx, query, req.Id)
-	log.Println("ssrrs")
 	if err != nil {
-		log.Println("error on Delete Content:", err)
+		log.Println("error during delete operation:", err)
 		return nil, err
 	}
-	log.Println("ss22s")
+
+	log.Println("Delete operation successful")
 	return &emptypb.Empty{}, nil
 }

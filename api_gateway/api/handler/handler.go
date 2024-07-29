@@ -6,6 +6,6 @@ type handler struct {
 	conn content_service.ContentServiceClient
 }
 
-func NewHandler(conn content_service.ContentServiceClient)*handler{
+func NewHandler(conn content_service.ContentServiceClient) *handler {
 	return &handler{conn: conn}
 }
